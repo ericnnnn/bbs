@@ -1,0 +1,118 @@
+var express = require('express');
+var bodyParser = require('body-parser');
+var _ = require('underscore');
+var db = require('./db.js');
+var bcrypt = require('bcryptjs');
+var middleware = require('./middleware.js')(db);
+
+var app = express();
+var PORT = process.env.PORT || 3000;
+var todos = [];
+// var todoNextId = 1;
+
+
+app.use(bodyParser.json());
+
+app.get('/', function(req, res) {
+	res.send('BBS API Root');
+});
+
+// create groups /post /groups
+app.post('/groups',middleware.requireAuthentication,function(req,res) {
+  debugger;
+  var body=_.pick(req.body,'title');
+  db.group.create(body).then(function(group) {
+      res.json(group.toJSON());
+  },function(e) {
+    res.status(400).json(e);
+  })
+});
+//create topic /post/topics
+app.post('/topics',middleware.requireAuthentication,function(req,res) {
+  var body=_.pick(req.body,'groupId','title','content');
+  var topic={
+    //groupId:body.groupId,
+    title:body.title,
+    content:body.content
+  };
+
+  db.topic.create(topic).then(function(topic) {
+
+    db.group.findById(body.groupId).then(function(group) {
+      group.addTopic(topic).then(function() {
+        return topic.reload();
+      }).then(function(topic) {
+        req.user.addTopic(topic).then(
+          function() {
+            return topic.reload();
+          }
+        ).then(
+          function(topic) {
+            res.json(topic.toJSON());
+          },
+          function(e) {
+            res.status(400).json(e);
+          }
+        );
+      });
+    });
+
+    // req.user.addTopic(topic).then(
+    //   function() {
+    //     return topic.reload();
+    //   }
+    // ).then(
+    //   function(topic) {
+    //     res.json(topic.toJSON());
+    //   },
+    //   function(e) {
+    //     res.status(400).json(e);
+    //   }
+    // );
+  });
+});
+
+app.post('/users', function (req, res) {
+	var body = _.pick(req.body, 'email', 'password');
+
+	db.user.create(body).then(function (user) {
+		res.json(user.toPublicJSON());
+	}, function (e) {
+		res.status(400).json(e);
+	});
+});
+
+// POST /users/login
+app.post('/users/login', function (req, res) {
+	var body = _.pick(req.body, 'email', 'password');
+	var userInstance;
+
+	db.user.authenticate(body).then(function (user) {
+		var token = user.generateToken('authentication');
+		userInstance = user;
+
+		return db.token.create({
+			token: token
+		});
+	}).then(function (tokenInstance) {
+		res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON());
+	}).catch(function () {
+		res.status(401).send();
+	});
+});
+
+// DELETE /users/login
+app.delete('/users/login', middleware.requireAuthentication, function (req, res) {
+	req.token.destroy().then(function () {
+		res.status(204).send();
+	}).catch(function () {
+		res.status(500).send();
+	});
+});
+
+// db.sequelize.sync({force: true}).then(function() {
+db.sequelize.sync({force: true}).then(function() {
+	app.listen(PORT, function() {
+		console.log('Express listening on port ' + PORT + '!');
+	});
+});

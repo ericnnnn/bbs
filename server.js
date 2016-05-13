@@ -7,14 +7,43 @@ var middleware = require('./middleware.js')(db);
 
 var app = express();
 var PORT = process.env.PORT || 3000;
-var todos = [];
-// var todoNextId = 1;
+
+const cors = require('cors');
+
 
 
 app.use(bodyParser.json());
+app.use(cors());
+
+// app.use(function (req, res, next) {
+//
+//     // Website you wish to allow to connect
+//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:8080');
+//
+//     // Request methods you wish to allow
+//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+//
+//     // Request headers you wish to allow
+//     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+//
+//     // Set to true if you need the website to include cookies in the requests sent
+//     // to the API (e.g. in case you use sessions)
+//     res.setHeader('Access-Control-Allow-Credentials', true);
+//
+//     // Pass to next layer of middleware
+//     next();
+// });
 
 app.get('/', function(req, res) {
 	res.send('BBS API Root');
+});
+
+app.get('/topics',function(req,res) {
+	db.topic.findAll().then(function (topics) {
+		res.json(topics);
+	},function(e) {
+		res.status(500).send();
+	});
 });
 
 // create groups /post /groups
@@ -35,9 +64,7 @@ app.post('/topics',middleware.requireAuthentication,function(req,res) {
     title:body.title,
     content:body.content
   };
-
   db.topic.create(topic).then(function(topic) {
-
     db.group.findById(body.groupId).then(function(group) {
       group.addTopic(topic).then(function() {
         return topic.reload();
@@ -56,19 +83,6 @@ app.post('/topics',middleware.requireAuthentication,function(req,res) {
         );
       });
     });
-
-    // req.user.addTopic(topic).then(
-    //   function() {
-    //     return topic.reload();
-    //   }
-    // ).then(
-    //   function(topic) {
-    //     res.json(topic.toJSON());
-    //   },
-    //   function(e) {
-    //     res.status(400).json(e);
-    //   }
-    // );
   });
 });
 
@@ -111,7 +125,7 @@ app.delete('/users/login', middleware.requireAuthentication, function (req, res)
 });
 
 // db.sequelize.sync({force: true}).then(function() {
-db.sequelize.sync({force: true}).then(function() {
+db.sequelize.sync().then(function() {
 	app.listen(PORT, function() {
 		console.log('Express listening on port ' + PORT + '!');
 	});

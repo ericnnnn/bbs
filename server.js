@@ -39,8 +39,11 @@ app.get('/', function(req, res) {
 });
 
 app.get('/topics',function(req,res) {
-	db.topic.findAll().then(function (topics) {
-		res.json(topics);
+	db.topic.findAll({attributes:['id','title'],
+										include:[{model:db.user,attributes:['Id','email']},
+											{model:db.group,attributes:['Id','title']}]})
+					.then(function (topics) {
+		res.json({topics});
 	},function(e) {
 		res.status(500).send();
 	});

@@ -49,6 +49,14 @@ app.get('/topics',function(req,res) {
 	});
 });
 
+app.get('/users',function(req,res) {
+	db.user.findAll({attributes:['email','password']})
+					.then(function (users) {
+		res.json({users});
+	},function(e) {
+		res.status(500).send();
+	});
+});
 // create groups /post /groups
 app.post('/groups',middleware.requireAuthentication,function(req,res) {
   debugger;

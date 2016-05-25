@@ -40,8 +40,8 @@ app.get('/', function(req, res) {
 
 app.get('/topics',function(req,res) {
 	db.topic.findAll({attributes:['id','title'],
-										include:[{model:db.user,attributes:['Id','email']},
-											{model:db.group,attributes:['Id','title']}]})
+										include:[{model:db.user,attributes:[['Id','UserID'],'email']},
+											{model:db.group,attributes:[['Id','GroupID'],'title']}]})
 					.then(function (topics) {
 		res.json({topics});
 	},function(e) {

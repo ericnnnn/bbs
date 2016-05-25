@@ -40,8 +40,8 @@ app.get('/', function(req, res) {
 
 app.get('/topics',function(req,res) {
 	db.topic.findAll({attributes:['id','title'],
-										include:[{model:db.user,attributes:['Id','email']},
-											{model:db.group,attributes:['Id','title']}]})
+										include:[{model:db.user,attributes:['email']},
+											{model:db.group,attributes:['title']}]})
 					.then(function (topics) {
 		res.json({topics});
 	},function(e) {
@@ -136,7 +136,7 @@ app.delete('/users/login', middleware.requireAuthentication, function (req, res)
 });
 
 // db.sequelize.sync({force: true}).then(function() {
-db.sequelize.sync({force:true}).then(function() {
+db.sequelize.sync().then(function() {
 	app.listen(PORT, function() {
 		console.log('Express listening on port ' + PORT + '!');
 	});

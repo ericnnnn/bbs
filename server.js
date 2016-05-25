@@ -40,8 +40,13 @@ app.get('/', function(req, res) {
 
 app.get('/topics',function(req,res) {
 	db.topic.findAll({attributes:['id','title'],
+<<<<<<< HEAD
 										include:[{model:db.user,attributes:[['Id','UserID'],'email']},
 											{model:db.group,attributes:[['Id','GroupID'],'title']}]})
+=======
+										include:[{model:db.user,attributes:[['Id','UserID'],'email']},
+											{model:db.group,attributes:[['Id','GroupID'],'title']}]})
+>>>>>>> e1bb3579f6f8dcbc19e10009320f217fdd86c3e7
 					.then(function (topics) {
 		res.json({topics});
 	},function(e) {
@@ -49,6 +54,14 @@ app.get('/topics',function(req,res) {
 	});
 });
 
+app.get('/users',function(req,res) {
+	db.user.findAll({attributes:['email','password']})
+					.then(function (users) {
+		res.json({users});
+	},function(e) {
+		res.status(500).send();
+	});
+});
 // create groups /post /groups
 app.post('/groups',middleware.requireAuthentication,function(req,res) {
   debugger;

@@ -41,8 +41,8 @@ app.get('/', function(req, res) {
 app.get('/topics',function(req,res) {
 	db.topic.findAll({attributes:['id','title'],
 
-										include:[{model:db.user,attributes:[['Id','UserID'],'email']},
-											{model:db.group,attributes:[['Id','GroupID'],'title']}]})
+										include:[{model:db.user,attributes:[['id','UserID'],'email']},
+											{model:db.group,attributes:[['id','GroupID'],'title']}]})
 
 					.then(function (topics) {
 		res.json({topics});

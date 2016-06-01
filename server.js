@@ -51,6 +51,22 @@ app.get('/topics',function(req,res) {
 	});
 });
 
+app.get('/groups',function(req,res) {
+	db.group.findAll({attributes:['id','title']
+										// ,
+										// include:[
+										// 					{model:db.user,
+										// 					attributes:['id','email']
+										// 					}
+										// 				]
+									})
+					.then(function (groups) {
+						res.json({groups});
+					},function(e) {
+						res.status(500).send();
+					});
+});
+
 app.get('/users',function(req,res) {
 	db.user.findAll({attributes:['email','password']})
 					.then(function (users) {
@@ -123,6 +139,7 @@ app.post('/users/login', function (req, res) {
 		});
 	}).then(function (tokenInstance) {
 		res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON());
+
 	}).catch(function () {
 		res.status(401).send();
 	});

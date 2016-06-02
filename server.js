@@ -39,9 +39,11 @@ app.get('/', function(req, res) {
 });
 
 app.get('/topics',function(req,res) {
+	var queryParams = req.query;
+
 	db.topic.findAll({attributes:['id','title'],
 										where:{
-											groupId:1
+											groupId:queryParams.groupId
 										},
 										include:[{model:db.user,attributes:['id','email']},
 											{model:db.group,attributes:['id','title']}]})

@@ -40,7 +40,9 @@ app.get('/', function(req, res) {
 
 app.get('/topics',function(req,res) {
 	db.topic.findAll({attributes:['id','title'],
-
+										where:{
+											groupId:1
+										},
 										include:[{model:db.user,attributes:['id','email']},
 											{model:db.group,attributes:['id','title']}]})
 

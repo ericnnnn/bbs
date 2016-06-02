@@ -30,10 +30,10 @@ db.Sequelize = Sequelize;
 
 db.topic.belongsTo(db.group);
 db.topic.belongsTo(db.user);
-db.group.belongsTo(db.user);
+//db.group.belongsTo(db.user);
 db.group.hasMany(db.topic);
 db.user.hasMany(db.topic);
-db.user.hasMany(db.group);
+//db.user.hasMany(db.group);
 db.content.belongsTo(db.group);
 db.content.belongsTo(db.user);
 db.content.belongsTo(db.topic);

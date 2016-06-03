@@ -47,7 +47,9 @@ app.get('/contents',function(req,res) {
 											topicId:queryParams.topicId
 										},
 										include:[{model:db.user,attributes:['id','email']},
-											{model:db.group,attributes:['id','title']}]})
+											{model:db.group,attributes:['id','title']},
+											{model:db.topic,attributes:['id','title']}
+										]})
 
 					.then(function (contents) {
 		res.json({contents});

@@ -38,6 +38,24 @@ app.get('/', function(req, res) {
 	res.send('BBS API Root');
 });
 
+app.get('/contents',function(req,res) {
+	var queryParams = req.query;
+
+	db.content.findAll({attributes:['id','content'],
+										where:{
+											groupId:queryParams.groupId,
+											topicId:queryParams.topicId
+										},
+										include:[{model:db.user,attributes:['id','email']},
+											{model:db.group,attributes:['id','title']}]})
+
+					.then(function (contents) {
+		res.json({contents});
+	},function(e) {
+		res.status(500).send();
+	});
+});
+
 app.get('/topics',function(req,res) {
 	var queryParams = req.query;
 

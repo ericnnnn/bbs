@@ -80,7 +80,8 @@ app.get('/users',function(req,res) {
 	});
 });
 // create groups /post /groups
-app.post('/groups',middleware.requireAuthentication,function(req,res) {
+//app.post('/groups',middleware.requireAuthentication,function(req,res) {
+app.post('/groups',function(req,res) {
   debugger;
   var body=_.pick(req.body,'title');
   db.group.create(body).then(function(group) {
@@ -91,14 +92,17 @@ app.post('/groups',middleware.requireAuthentication,function(req,res) {
 });
 //create topic /post/topics
 app.post('/topics',middleware.requireAuthentication,function(req,res) {
-  var body=_.pick(req.body,'groupId','title','content');
+//app.post('/topics',function(req,res) {
+  var body=_.pick(req.body,'groupId','title');
   var topic={
     //groupId:body.groupId,
-    title:body.title,
-    content:body.content
+    title:body.title
+		//,
+		//content:''
   };
   db.topic.create(topic).then(function(topic) {
     db.group.findById(body.groupId).then(function(group) {
+			//console.log(group.addTopic);
       group.addTopic(topic).then(function() {
         return topic.reload();
       }).then(function(topic) {
@@ -114,6 +118,50 @@ app.post('/topics',middleware.requireAuthentication,function(req,res) {
             res.status(400).json(e);
           }
         );
+      });
+    });
+  });
+});
+
+app.post('/contents',middleware.requireAuthentication,function(req,res) {
+  var body=_.pick(req.body,'groupId','topicId','content');
+  var content={
+    content:body.content
+  };
+  db.content.create(content).then(function(content) {
+    db.topic.findById(body.topicId).then(function(topic) {
+      topic.addContent(content).then(function() {
+        return content.reload();
+      }).then(function(content) {
+					        req.user.addContent(content).then(
+					          function() {
+					            return content.reload();
+					          }
+					        ).then(function(content) {
+										db.group.findById(body.groupId).then(
+											function(group) {
+												group.addContent(content).then(function() {
+													return content.reload();
+												})
+												.then(
+								          function(content) {
+								            res.json(content.toJSON());
+								          },
+								          function(e) {
+								            res.status(400).json(e);
+								          }
+								        );
+											}
+										)
+									})
+									// .then(
+					        //   function(content) {
+					        //     res.json(content.toJSON());
+					        //   },
+					        //   function(e) {
+					        //     res.status(400).json(e);
+					        //   }
+					        // );
       });
     });
   });
@@ -158,8 +206,8 @@ app.delete('/users/login', middleware.requireAuthentication, function (req, res)
 	});
 });
 
-// db.sequelize.sync({force: true}).then(function() {
-db.sequelize.sync().then(function() {
+ db.sequelize.sync({force: true}).then(function() {
+//db.sequelize.sync().then(function() {
 	app.listen(PORT, function() {
 		console.log('Express listening on port ' + PORT + '!');
 	});

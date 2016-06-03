@@ -3,10 +3,11 @@ module.exports=function (sequelize,DataTypes) {
     title:{
       type:DataTypes.STRING,
       allowNull:false
-    },
-    content:{
-      type:DataTypes.STRING,
-      allowNull:false
-    }
+     }
+     //,
+    // content:{
+    //   type:DataTypes.STRING,
+    //   allowNull:false
+    // }
   });
 };
